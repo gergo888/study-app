@@ -1,0 +1,12 @@
+Django>=5.2,<5.3
+djangorestframework>=3.16,<4
+django-environ>=0.12
+PyYAML>=6.0
+pymupdf>=1.26
+fsrs>=6.0,<7
+rapidfuzz>=3.0
+gunicorn>=23
+
+# tests
+pytest>=8
+pytest-django>=4.9

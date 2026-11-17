@@ -1,0 +1,17 @@
+# --- Backend (Python / Django) ---
+backend/.venv/
+backend/.env
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# --- State and uploads: personal data, back them up instead of committing ---
+data/
+media/
+
+# --- Content: Markdown is tracked; extraction scratch space is not ---
+content/**/_source/
+
+# --- Editors / OS ---
+.DS_Store
+.idea/

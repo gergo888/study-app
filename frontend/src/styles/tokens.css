@@ -1,0 +1,72 @@
+/*
+ * Design tokens, ported from the EduManage reference design
+ * (https://edumanage-liart.vercel.app). Change colors, radius, spacing here.
+ */
+
+:root {
+  --primary: #4f46e5;
+  --primary-rgb: 79, 70, 229;
+  --body-bg: #f6f7fb;
+  --card-bg: #fff;
+  --text-primary: #111827;
+  --text-secondary: #667085;
+  --border-color: #e6e8ef;
+  --muted-bg: #f1f3f9;
+  --sidebar-bg: #fff;
+  --sidebar-text: #667085;
+  --sidebar-border: #e6e8ef;
+  --sidebar-active-bg: rgba(var(--primary-rgb), 0.1);
+  --sidebar-active-text: var(--primary);
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.05);
+  --shadow-md: 0 8px 24px rgba(16, 24, 40, 0.08);
+  --font-family: var(--font-inter), "Inter", system-ui, sans-serif;
+  --card-pad: 1.25rem;
+  --row-pad: 0.8rem;
+  --gap: 1.5rem;
+  --sidebar-w: 264px;
+  --header-h: 64px;
+  --success: #16a34a;
+  --success-rgb: 22, 163, 74;
+  --warning: #d97706;
+  --warning-rgb: 217, 119, 6;
+  --danger: #dc2626;
+  --danger-rgb: 220, 38, 38;
+  --info: #0891b2;
+  --info-rgb: 8, 145, 178;
+  --hidden-bar: #dfe3ee;
+}
+
+[data-bs-theme="dark"] {
+  --body-bg: #0d1117;
+  --card-bg: #151b26;
+  --text-primary: #e8ecf3;
+  --text-secondary: #93a0b4;
+  --border-color: #242d3d;
+  --muted-bg: #1b2331;
+  --sidebar-bg: #111722;
+  --sidebar-text: #93a0b4;
+  --sidebar-border: #242d3d;
+  --sidebar-active-bg: rgba(var(--primary-rgb), 0.22);
+  --sidebar-active-text: #fff;
+  --shadow-sm: none;
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.4);
+  --hidden-bar: #2a3446;
+}
+
+:root,
+[data-bs-theme] {
+  --bs-primary: var(--primary);
+  --bs-primary-rgb: var(--primary-rgb);
+  --bs-body-bg: var(--body-bg);
+  --bs-body-color: var(--text-primary);
+  --bs-body-font-family: var(--font-family);
+  --bs-border-color: var(--border-color);
+  --bs-secondary-color: var(--text-secondary);
+  --bs-link-color-rgb: var(--primary-rgb);
+  --bs-border-radius: var(--radius-md);
+  --bs-border-radius-sm: var(--radius-sm);
+  --bs-border-radius-lg: var(--radius-lg);
+}
