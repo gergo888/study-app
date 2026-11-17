@@ -66,6 +66,7 @@ study-app/
 ├── .claude/skills/generate-chapter/SKILL.md
 │                                The workflow Claude Code follows to write a chapter's content
 ├── docs/
+│   ├── FEATURES.md              User guide: every feature (FEATURES.hu.md: Hungarian version)
 │   ├── ARCHITECTURE.md          This document
 │   ├── CONTENT_FORMAT.md        Exact Markdown syntax of summary/flashcards/quiz files
 │   └── DATA_FORMAT.md           Every CSV file and column

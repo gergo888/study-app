@@ -10,6 +10,8 @@ database.
 * **Content:** `content/` (Markdown) · **State:** `data/` (CSV) · **PDFs:** `media/`
 
 Read [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for what every folder and file does.
+For a tour of everything the app can do, see [docs/FEATURES.md](docs/FEATURES.md)
+(magyarul: [docs/FEATURES.hu.md](docs/FEATURES.hu.md)).
 
 ## Run it locally
 

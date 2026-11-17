@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useLayoutEffect, useMemo, useRef, useState } from "react";
 
 import { Bi, ErrorAlert, FigureView, IssueList, Loader } from "@/components/common/ui";
 import { RawEditorModal } from "@/components/editor/RawEditorModal";
@@ -23,6 +23,38 @@ const MODES: { id: Mode; label: string; icon: string }[] = [
 ];
 
 const CHIP_TITLES = { M: "Memorize (reveal / write)", F: "Flashcard", Q: "Quiz" };
+
+// ---- Keeping the reading position when the mode changes -------------------
+// Switching modes changes the height of everything (Memorize hides the texts,
+// Edit adds controls…), which would make the page jump. Before the change we
+// remember the heading/bullet point at the top of the visible area; after the
+// new layout is rendered we scroll so it is exactly where it was.
+
+type Anchor = { id: string; top: number };
+const GAP = 8; // space kept between the sticky toolbar and the restored element
+
+function captureAnchor(toolbar: HTMLElement | null): Anchor | null {
+  if (window.scrollY < 1) return null; // at the top of the page: nothing to keep
+  const visibleFrom = toolbar?.getBoundingClientRect().bottom ?? 0;
+  for (const el of document.querySelectorAll<HTMLElement>("[data-anchor]")) {
+    const r = el.getBoundingClientRect();
+    // Must be clearly visible: the element above a restored anchor ends GAP px below the toolbar,
+    // and a point scrolled almost out of view (only its last few lines showing) is not what you read.
+    if (r.bottom <= visibleFrom + GAP + 6) continue;
+    if (r.top < visibleFrom && r.bottom - visibleFrom < 60) continue;
+    return { id: el.id, top: r.top };
+  }
+  return null;
+}
+
+function restoreAnchor(anchor: Anchor | null, toolbar: HTMLElement | null) {
+  const el = anchor && document.getElementById(anchor.id);
+  if (!anchor || !el) return;
+  // Same position as before, but never with its title hidden under the sticky toolbar.
+  const visibleFrom = toolbar?.getBoundingClientRect().bottom ?? 0;
+  const delta = el.getBoundingClientRect().top - Math.max(anchor.top, visibleFrom + GAP);
+  if (Math.abs(delta) > 1) window.scrollBy({ top: delta, behavior: "instant" });
+}
 
 function ProgressChips({ point }: { point: SummaryPoint }) {
   const mem = point.progress.write ?? point.progress.reveal;
@@ -68,7 +100,7 @@ function PointRow({
   onRecorded: (learned: string | null) => void;
 }) {
   return (
-    <div className={`point ${selected ? "selected" : ""}`} id={`p-${point.key}`}>
+    <div className={`point ${selected ? "selected" : ""}`} id={`p-${point.key}`} data-anchor>
       {mode === "select" ? (
         <input className="form-check-input mt-1 flex-none" type="checkbox" checked={selected} onChange={onToggle} aria-label={`Select ${point.title_en}`} />
       ) : (
@@ -139,6 +171,18 @@ export function SummaryTab({ chapter }: { chapter: ChapterDetail }) {
   const allPoints = useMemo(() => data?.sections.flatMap((s) => s.points) ?? [], [data]);
   const memorized = allPoints.filter((p) => p.progress.reveal || p.progress.write).length;
 
+  const toolbarRef = useRef<HTMLDivElement>(null);
+  const anchorRef = useRef<Anchor | null>(null);
+  useLayoutEffect(() => {
+    restoreAnchor(anchorRef.current, toolbarRef.current);
+    anchorRef.current = null;
+  }, [mode, resetToken]);
+  /** Run a change that re-lays out the summary while keeping the reading position. */
+  const keepPosition = (change: () => void) => {
+    anchorRef.current = captureAnchor(toolbarRef.current);
+    change();
+  };
+
   if (isLoading) return <Loader />;
   if (error || !data) return <ErrorAlert error={error} />;
 
@@ -196,10 +240,10 @@ export function SummaryTab({ chapter }: { chapter: ChapterDetail }) {
 
   return (
     <>
-      <div className="summary-toolbar d-flex flex-wrap align-items-center gap-2">
+      <div className="summary-toolbar d-flex flex-wrap align-items-center gap-2" ref={toolbarRef}>
         <div className="seg" role="group" aria-label="Summary mode">
           {MODES.map((m) => (
-            <button key={m.id} aria-pressed={mode === m.id} onClick={() => setMode(m.id)}>
+            <button key={m.id} aria-pressed={mode === m.id} onClick={() => m.id !== mode && keepPosition(() => setMode(m.id))}>
               <i className={`bi ${m.icon} me-1`} />
               {m.label}
             </button>
@@ -210,7 +254,7 @@ export function SummaryTab({ chapter }: { chapter: ChapterDetail }) {
             <span className="small text-secondary ms-2">
               {memorized}/{allPoints.length} points memorized
             </span>
-            <button className="btn btn-sm btn-light" onClick={() => setResetToken((t) => t + 1)}>
+            <button className="btn btn-sm btn-light" onClick={() => keepPosition(() => setResetToken((t) => t + 1))}>
               <i className="bi bi-arrow-counterclockwise me-1" />
               Hide all
             </button>
@@ -238,7 +282,7 @@ export function SummaryTab({ chapter }: { chapter: ChapterDetail }) {
         return (
           <div className="card summary-section" key={s.key}>
             <div className="card-body">
-              <div className="d-flex align-items-start gap-2 mb-1">
+              <div className="d-flex align-items-start gap-2 mb-1" id={`s-${s.key}`} data-anchor>
                 {mode === "select" && <input className="form-check-input mt-1" type="checkbox" checked={allSel} onChange={() => toggleSection(s)} aria-label="Select section" />}
                 <Bi en={s.heading_en} hu={s.heading_hu} className="section-title flex-grow-1" />
                 {mode === "edit" && (
